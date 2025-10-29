@@ -91,13 +91,13 @@ services:
     # privileged: true  # Necessário para acesso aos periféricos
 
   # =============================================================================
-  # APP PWA - Aplicação de Caixa/PDV (React/Vue/Angular)
+  # SOLIS PWA - Aplicação de Caixa/PDV (React/Vue/Angular)
   # =============================================================================
-  app-pwa:
+  solis-pwa:
     build:
-      context: ./app-pwa
+      context: ./solis-pwa
       dockerfile: Dockerfile
-    container_name: solis-app-pwa
+    container_name: solis-pwa
     environment:
       - NODE_ENV=${NODE_ENV:-development}
       - REACT_APP_API_URL=http://localhost:3000
@@ -111,28 +111,28 @@ services:
       - solis-network
     restart: unless-stopped
     volumes:
-      - ./app-pwa/src:/app/src
+      - ./solis-pwa/src:/app/src
 
   # =============================================================================
-  # APP ADMIN - Aplicação Web Administrativa (React/Vue/Angular)
+  # SOLIS ADMIN - Aplicação Web Administrativa (React/Vue/Angular)
   # =============================================================================
-  app-admin:
+  solis-admin:
     build:
-      context: ./app-admin
+      context: ./solis-admin
       dockerfile: Dockerfile
-    container_name: solis-app-admin
+    container_name: solis-admin
     environment:
       - NODE_ENV=${NODE_ENV:-development}
       - REACT_APP_API_URL=http://localhost:3000
     ports:
       - "8081:80"
     depends_on:
-      - api-nuvem
+      - solis-api
     networks:
       - solis-network
     restart: unless-stopped
     volumes:
-      - ./app-admin/src:/app/src
+      - ./solis-admin/src:/app/src
 
 # =============================================================================
 # REDES

@@ -93,13 +93,13 @@ solis/
 │   ├── Dockerfile
 │   └── Solis.AgentePDV.csproj
 │
-├── app-pwa/                # App de Caixa (React/PWA)
+├── solis-pwa/                # App de Caixa (React/PWA)
 │   ├── src/
 │   ├── Dockerfile
 │   ├── nginx.conf
 │   └── package.json
 │
-├── app-admin/              # App Administrativo (React)
+├── solis-admin/              # App Administrativo (React)
 │   ├── src/
 │   ├── Dockerfile
 │   ├── nginx.conf
@@ -201,8 +201,8 @@ Ver logs de um serviço específico:
 ```powershell
 docker-compose logs -f solis-api
 docker-compose logs -f agente-pdv
-docker-compose logs -f app-pwa
-docker-compose logs -f app-admin
+docker-compose logs -f solis-pwa
+docker-compose logs -f solis-admin
 ```
 
 ### Reiniciar um serviço

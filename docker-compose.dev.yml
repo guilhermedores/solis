@@ -24,25 +24,25 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
 
-  # App PWA em modo desenvolvimento
-  app-pwa:
+  # Solis PWA em modo desenvolvimento
+  solis-pwa:
     command: npm run start
     ports:
       - "3001:3000"
     volumes:
-      - ./app-pwa:/app
+      - ./solis-pwa:/app
       - /app/node_modules
     environment:
       - NODE_ENV=development
       - CHOKIDAR_USEPOLLING=true
 
-  # App Admin em modo desenvolvimento
-  app-admin:
+  # Solis Admin em modo desenvolvimento
+  solis-admin:
     command: npm run start
     ports:
       - "3002:3000"
     volumes:
-      - ./app-admin:/app
+      - ./solis-admin:/app
       - /app/node_modules
     environment:
       - NODE_ENV=development

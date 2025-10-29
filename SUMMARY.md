@@ -19,8 +19,8 @@ Sistema completo de Ponto de Venda (PDV/POS) desenvolvido com arquitetura modern
 ```
 ✅ /solis-api          - Backend Node.js (API REST)
 ✅ /agente-pdv         - Serviço .NET para periféricos
-✅ /app-pwa            - Aplicação de caixa (PWA)
-✅ /app-admin          - Painel administrativo web
+✅ /solis-pwa            - Aplicação de caixa (PWA)
+✅ /solis-admin          - Painel administrativo web
 ✅ /database           - Scripts SQL e configurações
 ✅ /volumes            - Dados persistentes
 ```
@@ -39,8 +39,8 @@ Sistema completo de Ponto de Venda (PDV/POS) desenvolvido com arquitetura modern
 ```
 ✅ solis-api/Dockerfile    - Multi-stage (dev/prod)
 ✅ agente-pdv/Dockerfile   - .NET 8.0
-✅ app-pwa/Dockerfile      - React + Nginx
-✅ app-admin/Dockerfile    - React + Nginx
+✅ solis-pwa/Dockerfile      - React + Nginx
+✅ solis-admin/Dockerfile    - React + Nginx
 ```
 
 ### Documentação

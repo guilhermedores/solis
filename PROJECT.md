@@ -11,8 +11,8 @@ Toda a infraestrutura Docker do Sistema Solis PDV foi criada e está pronta para
 Solis/
 ├── 📁 solis-api/          → Backend Node.js
 ├── 📁 agente-pdv/         → Serviço .NET para periféricos
-├── 📁 app-pwa/            → Aplicação de Caixa (PWA)
-├── 📁 app-admin/          → Painel Administrativo Web
+├── 📁 solis-pwa/            → Aplicação de Caixa (PWA)
+├── 📁 solis-admin/          → Painel Administrativo Web
 ├── 📁 database/           → Scripts SQL e configurações
 └── 📁 volumes/            → Dados persistentes
 ```

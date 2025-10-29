@@ -24,24 +24,24 @@ Use este checklist para verificar se tudo está configurado corretamente.
 - [x] `/solis-api/src` - Código fonte API
 - [x] `/agente-pdv` - Serviço .NET
 - [x] `/agente-pdv/src` - Código fonte Agente
-- [x] `/app-pwa` - Aplicação PWA
-- [x] `/app-pwa/src` - Código fonte PWA
-- [x] `/app-admin` - App Administrativo
-- [x] `/app-admin/src` - Código fonte Admin
+- [x] `/solis-pwa` - Aplicação PWA
+- [x] `/solis-pwa/src` - Código fonte PWA
+- [x] `/solis-admin` - App Administrativo
+- [x] `/solis-admin/src` - Código fonte Admin
 - [x] `/database/init` - Scripts SQL
 - [x] `/volumes` - Dados persistentes
 
 ### Dockerfiles
 - [x] `solis-api/Dockerfile` - Multi-stage
 - [x] `agente-pdv/Dockerfile` - .NET
-- [x] `app-pwa/Dockerfile` - React + Nginx
-- [x] `app-admin/Dockerfile` - React + Nginx
+- [x] `solis-pwa/Dockerfile` - React + Nginx
+- [x] `solis-admin/Dockerfile` - React + Nginx
 
 ### Configurações
 - [x] `solis-api/package.json` - Dependências
 - [x] `agente-pdv/Solis.AgentePDV.csproj` - Projeto .NET
-- [x] `app-pwa/nginx.conf` - Nginx PWA
-- [x] `app-admin/nginx.conf` - Nginx Admin
+- [x] `solis-pwa/nginx.conf` - Nginx PWA
+- [x] `solis-admin/nginx.conf` - Nginx Admin
 - [x] `database/init/01-init-database.sql` - Schema DB
 
 ---
