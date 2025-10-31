@@ -32,7 +32,7 @@ public class ProdutoService : IProdutoService
 
     public async Task<IEnumerable<Produto>> BuscarPorNomeAsync(string termo)
     {
-        return await _context.Produtos.Include(p => p.PrecoAtual).Where(p => p.Nome.Contains(termo) && p.Ativo).OrderBy(p => p.Nome).Take(20).ToListAsync();
+        return await _context.Produtos.Include(p => p.PrecoAtual).Where(p => EF.Functions.Like(p.Nome, $"%{termo}%") && p.Ativo).OrderBy(p => p.Nome).Take(20).ToListAsync();
     }
 
     public async Task<IEnumerable<Produto>> ListarProdutosAsync(int skip, int take)
