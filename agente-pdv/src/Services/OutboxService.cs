@@ -1,6 +1,7 @@
 using Solis.AgentePDV.Data;
 using Solis.AgentePDV.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
 
 namespace Solis.AgentePDV.Services;
@@ -24,12 +25,12 @@ public interface IOutboxService
 /// </summary>
 public class OutboxService : IOutboxService
 {
-    private readonly IDbContextFactory<LocalDbContext> _contextFactory;
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<OutboxService> _logger;
 
-    public OutboxService(IDbContextFactory<LocalDbContext> contextFactory, ILogger<OutboxService> logger)
+    public OutboxService(IServiceScopeFactory scopeFactory, ILogger<OutboxService> logger)
     {
-        _contextFactory = contextFactory;
+        _scopeFactory = scopeFactory;
         _logger = logger;
     }
 
@@ -47,7 +48,8 @@ public class OutboxService : IOutboxService
     {
         try
         {
-            await using var context = await _contextFactory.CreateDbContextAsync();
+            using var scope = _scopeFactory.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<LocalDbContext>();
             
             // Opções de serialização para evitar ciclos
             var jsonOptions = new JsonSerializerOptions
@@ -91,7 +93,8 @@ public class OutboxService : IOutboxService
     /// </summary>
     public async Task<List<OutboxMessage>> ObterMensagensPendentesAsync(int limite = 100)
     {
-        await using var context = await _contextFactory.CreateDbContextAsync();
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<LocalDbContext>();
         
         var agora = DateTime.UtcNow;
         
@@ -110,7 +113,8 @@ public class OutboxService : IOutboxService
     /// </summary>
     public async Task MarcarComoProcessandoAsync(Guid messageId)
     {
-        await using var context = await _contextFactory.CreateDbContextAsync();
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<LocalDbContext>();
         
         var message = await context.OutboxMessages.FindAsync(messageId);
         if (message != null)
@@ -127,7 +131,8 @@ public class OutboxService : IOutboxService
     /// </summary>
     public async Task MarcarComoEnviadoAsync(Guid messageId, int statusCode)
     {
-        await using var context = await _contextFactory.CreateDbContextAsync();
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<LocalDbContext>();
         
         var message = await context.OutboxMessages.FindAsync(messageId);
         if (message != null)
@@ -149,7 +154,8 @@ public class OutboxService : IOutboxService
     /// </summary>
     public async Task MarcarComoErroAsync(Guid messageId, string erro, int? statusCode, DateTime? proximaTentativa)
     {
-        await using var context = await _contextFactory.CreateDbContextAsync();
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<LocalDbContext>();
         
         var message = await context.OutboxMessages.FindAsync(messageId);
         if (message != null)
@@ -187,7 +193,8 @@ public class OutboxService : IOutboxService
     /// </summary>
     public async Task<int> ObterTotalPendentesAsync()
     {
-        await using var context = await _contextFactory.CreateDbContextAsync();
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<LocalDbContext>();
         return await context.OutboxMessages
             .CountAsync(m => m.Status == "Pendente" && m.TentativasEnvio < m.MaxTentativas);
     }
@@ -197,7 +204,8 @@ public class OutboxService : IOutboxService
     /// </summary>
     public async Task<int> LimparMensagensAntigasAsync(int diasRetencao = 30)
     {
-        await using var context = await _contextFactory.CreateDbContextAsync();
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<LocalDbContext>();
         
         var dataLimite = DateTime.UtcNow.AddDays(-diasRetencao);
         

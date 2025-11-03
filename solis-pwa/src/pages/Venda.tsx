@@ -1,11 +1,37 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useCarrinhoStore } from '../stores/carrinho.store'
+import ConsultaProdutosModal from '../components/ConsultaProdutosModal'
+import type { Produto } from '../types'
 
 export default function Venda() {
   const navigate = useNavigate()
   const [codigoBarras, setCodigoBarras] = useState('')
+  const [modalConsultaProdutos, setModalConsultaProdutos] = useState(false)
   const { itens, valorLiquido, quantidadeItens } = useCarrinhoStore()
+
+  const handleSelectProduto = (produto: Produto) => {
+    // TODO: Adicionar produto ao carrinho
+    console.log('Produto selecionado:', produto)
+  }
+
+  // Atalhos de teclado
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // F4 - Buscar Produto
+      if (e.key === 'F4') {
+        e.preventDefault()
+        setModalConsultaProdutos(true)
+      }
+      // ESC - Voltar
+      if (e.key === 'Escape' && !modalConsultaProdutos) {
+        navigate('/dashboard')
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [modalConsultaProdutos, navigate])
   
   return (
     <div className="h-screen flex flex-col bg-gray-50 overflow-hidden">
@@ -35,14 +61,26 @@ export default function Venda() {
           <div className="lg:col-span-2 flex flex-col space-y-3 sm:space-y-4 h-full overflow-hidden">
             {/* Busca de Produtos - altura fixa */}
             <div className="bg-white rounded-lg shadow-md p-3 sm:p-4 flex-shrink-0">
-              <input
-                type="text"
-                value={codigoBarras}
-                onChange={(e) => setCodigoBarras(e.target.value)}
-                placeholder="Digite o código de barras ou busque por nome"
-                className="w-full px-3 sm:px-4 py-2 sm:py-3 text-base sm:text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                autoFocus
-              />
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={codigoBarras}
+                  onChange={(e) => setCodigoBarras(e.target.value)}
+                  placeholder="Digite o código de barras"
+                  className="flex-1 px-3 sm:px-4 py-2 sm:py-3 text-base sm:text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  autoFocus
+                />
+                <button
+                  onClick={() => setModalConsultaProdutos(true)}
+                  className="px-4 sm:px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors whitespace-nowrap text-sm sm:text-base font-semibold"
+                  title="Buscar produtos (F4)"
+                >
+                  <span className="hidden sm:inline">Buscar</span>
+                  <svg className="w-5 h-5 sm:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </button>
+              </div>
             </div>
             
             {/* Lista de Itens - altura flexível com scroll */}
@@ -137,6 +175,13 @@ export default function Venda() {
           </div>
         </div>
       </div>
+
+      {/* Modal Consulta Produtos */}
+      <ConsultaProdutosModal 
+        isOpen={modalConsultaProdutos}
+        onClose={() => setModalConsultaProdutos(false)}
+        onSelectProduto={handleSelectProduto}
+      />
     </div>
   )
 }

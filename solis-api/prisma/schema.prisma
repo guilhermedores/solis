@@ -1,0 +1,135 @@
+// Solis API - Prisma Schema (Multi-Tenant)
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// PRODUTOS
+// ============================================
+
+model Produto {
+  id              String   @id @default(uuid())
+  codigoBarras    String?  @map("codigo_barras")
+  codigoInterno   String?  @map("codigo_interno")
+  nome            String
+  descricao       String?
+  unidadeMedida   String   @map("unidade_medida")
+  categoria       String?
+  ncm             String?
+  cest            String?
+  cfop            String?
+  ativo           Boolean  @default(true)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  precos          ProdutoPreco[]
+  vendaItens      VendaItem[]
+
+  @@map("produtos")
+  @@index([codigoBarras])
+  @@index([codigoInterno])
+  @@index([nome])
+}
+
+model ProdutoPreco {
+  id          String   @id @default(uuid())
+  produtoId   String   @map("produto_id")
+  precoVenda  Float    @map("preco_venda")
+  precoCusto  Float?   @map("preco_custo")
+  ativo       Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  produto     Produto  @relation(fields: [produtoId], references: [id], onDelete: Cascade)
+
+  @@map("produto_precos")
+  @@index([produtoId])
+}
+
+// ============================================
+// FORMAS DE PAGAMENTO
+// ============================================
+
+model FormaPagamento {
+  id              String   @id @default(uuid())
+  nome            String
+  tipo            String   // dinheiro, pix, cartao_credito, cartao_debito, boleto
+  taxaPercentual  Float?   @map("taxa_percentual")
+  ativo           Boolean  @default(true)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  vendaPagamentos VendaPagamento[]
+
+  @@map("formas_pagamento")
+}
+
+// ============================================
+// VENDAS
+// ============================================
+
+model Venda {
+  id              String   @id @default(uuid())
+  numeroVenda     Int      @map("numero_venda")
+  dataVenda       DateTime @default(now()) @map("data_venda")
+  valorTotal      Float    @map("valor_total")
+  valorDesconto   Float?   @default(0) @map("valor_desconto")
+  valorFinal      Float    @map("valor_final")
+  status          String   @default("finalizada") // finalizada, cancelada
+  observacoes     String?
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  itens           VendaItem[]
+  pagamentos      VendaPagamento[]
+
+  @@map("vendas")
+  @@index([numeroVenda])
+  @@index([dataVenda])
+}
+
+model VendaItem {
+  id              String   @id @default(uuid())
+  vendaId         String   @map("venda_id")
+  produtoId       String   @map("produto_id")
+  quantidade      Float
+  precoUnitario   Float    @map("preco_unitario")
+  subtotal        Float
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  venda           Venda    @relation(fields: [vendaId], references: [id], onDelete: Cascade)
+  produto         Produto  @relation(fields: [produtoId], references: [id])
+
+  @@map("venda_itens")
+  @@index([vendaId])
+  @@index([produtoId])
+}
+
+model VendaPagamento {
+  id                  String   @id @default(uuid())
+  vendaId             String   @map("venda_id")
+  formaPagamentoId    String   @map("forma_pagamento_id")
+  valor               Float
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  venda               Venda           @relation(fields: [vendaId], references: [id], onDelete: Cascade)
+  formaPagamento      FormaPagamento  @relation(fields: [formaPagamentoId], references: [id])
+
+  @@map("venda_pagamentos")
+  @@index([vendaId])
+  @@index([formaPagamentoId])
+}

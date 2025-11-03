@@ -23,9 +23,15 @@
 
   <!-- Excluir appsettings do single-file para permitir configuração externa -->
   <ItemGroup>
-    <Content Update="src\appsettings*.json">
+    <Content Update="src\appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="src\appsettings.Production.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
   </ItemGroup>
 
@@ -54,6 +60,7 @@
     
     <!-- HTTP Client -->
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.14.0" />
     
     <!-- Serial Port (para periféricos)-->
     <PackageReference Include="System.IO.Ports" Version="8.0.0" />

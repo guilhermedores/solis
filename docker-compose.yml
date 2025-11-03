@@ -36,11 +36,14 @@ services:
     environment:
       - NODE_ENV=${NODE_ENV:-development}
       - PORT=3000
+      - DATABASE_URL=postgresql://${DB_USER:-solis_user}:${DB_PASSWORD:-solis123}@postgres:5432/${DB_NAME:-solis_pdv}
       - DB_HOST=postgres
       - DB_PORT=5432
       - DB_NAME=${DB_NAME:-solis_pdv}
       - DB_USER=${DB_USER:-solis_user}
       - DB_PASSWORD=${DB_PASSWORD:-solis123}
+      - NEXTAUTH_SECRET=${JWT_SECRET:-your-secret-key-change-in-production}
+      - NEXTAUTH_URL=http://localhost:3000
       - JWT_SECRET=${JWT_SECRET:-your-secret-key-change-in-production}
       - CORS_ORIGIN=${CORS_ORIGIN:-*}
     ports:
@@ -52,7 +55,9 @@ services:
       - solis-network
     restart: unless-stopped
     volumes:
-      - ./solis-api/src:/app/src
+      - ./solis-api:/app
+      - /app/node_modules
+      - /app/.next
       - ./volumes/api-logs:/app/logs
       - ./volumes/uploads:/app/uploads
 

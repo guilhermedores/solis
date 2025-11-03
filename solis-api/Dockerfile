@@ -1,67 +1,52 @@
-# =============================================================================
-# Dockerfile para API da Nuvem (Node.js)
-# =============================================================================
-
-FROM node:18-alpine AS base
-
-# Instalação de dependências do sistema
-RUN apk add --no-cache \
-    python3 \
-    make \
-    g++
-
+# Base Stage
+FROM node:20-alpine AS base
 WORKDIR /app
 
-# =============================================================================
-# Stage: Development
-# =============================================================================
-FROM base AS development
+# Dependências necessárias
+RUN apk add --no-cache libc6-compat
 
-# Copiar arquivos de dependências
+# Dependencies Stage
+FROM base AS deps
 COPY package*.json ./
+RUN npm ci
 
-# Instalar dependências
-RUN npm install
-
-# Copiar código fonte
+# Development Stage
+FROM base AS dev
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-
-# Expor porta
 EXPOSE 3000
-
-# Comando para desenvolvimento (com hot reload)
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 CMD ["npm", "run", "dev"]
 
-# =============================================================================
-# Stage: Production
-# =============================================================================
-FROM base AS production
-
-# Copiar arquivos de dependências
-COPY package*.json ./
-
-# Instalar apenas dependências de produção
-RUN npm ci --only=production
-
-# Copiar código fonte
+# Builder Stage
+FROM base AS builder
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+# Desabilitar telemetria do Next.js durante build
+ENV NEXT_TELEMETRY_DISABLED=1
+
+RUN npm run build
+
+# Production Stage
+FROM base AS production
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
 # Criar usuário não-root
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nodejs -u 1001
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
 
-# Mudar ownership dos arquivos
-RUN chown -R nodejs:nodejs /app
+# Copiar arquivos necessários
+COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Mudar para usuário não-root
-USER nodejs
+USER nextjs
 
-# Expor porta
 EXPOSE 3000
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
-# Healthcheck
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
-
-# Comando para produção
-CMD ["node", "src/index.js"]
+CMD ["node", "server.js"]

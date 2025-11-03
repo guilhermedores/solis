@@ -6,7 +6,6 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import Dashboard from './pages/Dashboard'
 import Venda from './pages/Venda'
 import Login from './pages/Login'
-import ConsultaProdutos from './pages/ConsultaProdutos'
 
 // Criar cliente do React Query
 const queryClient = new QueryClient({
@@ -28,7 +27,6 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/venda" element={<Venda />} />
-          <Route path="/consulta-produtos" element={<ConsultaProdutos />} />
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </BrowserRouter>

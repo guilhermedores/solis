@@ -1,0 +1,11 @@
+{
+  "codigo_barras": "7891234567890",
+  "codigo_interno": "PROD001",
+  "nome": "Produto Teste 1",
+  "descricao": "Produto para testar sincronizacao",
+  "unidade_medida": "UN",
+  "categoria": "Teste",
+  "ncm": "12345678",
+  "ativo": true,
+  "preco_venda": 10.50
+}

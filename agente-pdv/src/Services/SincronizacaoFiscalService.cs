@@ -35,14 +35,15 @@ public class SincronizacaoFiscalService
             
             if (!response.IsSuccessStatusCode)
             {
-                throw new Exception($"Erro ao obter dados fiscais da nuvem: {response.StatusCode}");
+                _logger.LogWarning("API retornou status {StatusCode} ao buscar dados fiscais", response.StatusCode);
+                return;
             }
 
             var dadosFiscais = await response.Content.ReadFromJsonAsync<DadosFiscaisSincronizacao>();
 
             if (dadosFiscais == null)
             {
-                _logger.LogWarning("Nenhum dado fiscal retornado da nuvem");
+                _logger.LogInformation("Nenhum dado fiscal retornado da API");
                 return;
             }
 
@@ -149,6 +150,14 @@ public class SincronizacaoFiscalService
                 dadosFiscais.RegimesTributarios?.Count ?? 0,
                 dadosFiscais.Enquadramentos?.Count ?? 0,
                 dadosFiscais.RegimesEspeciaisTributacao?.Count ?? 0);
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogWarning(ex, "API nao disponivel. Sincronizacao fiscal sera tentada novamente no proximo ciclo");
+        }
+        catch (TaskCanceledException ex)
+        {
+            _logger.LogWarning(ex, "Timeout ao conectar com a API. Sincronizacao fiscal sera tentada novamente no proximo ciclo");
         }
         catch (Exception ex)
         {

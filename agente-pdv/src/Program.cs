@@ -40,11 +40,8 @@ try
     var sqliteConnection = builder.Configuration.GetConnectionString("LocalDb") 
         ?? "Data Source=agente-pdv.db";
     
+    // Usar apenas DbContext normal (Scoped)
     builder.Services.AddDbContext<LocalDbContext>(options =>
-        options.UseSqlite(sqliteConnection));
-    
-    // Adicionar DbContextFactory para o OutboxService
-    builder.Services.AddDbContextFactory<LocalDbContext>(options =>
         options.UseSqlite(sqliteConnection));
 
     // Configurar HttpClient para comunicação com Solis API

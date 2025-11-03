@@ -21,11 +21,18 @@ public static class DatabaseExtensions
             var localDb = scope.ServiceProvider.GetRequiredService<LocalDbContext>();
             
             // Obter caminho do banco de dados
-            var connectionString = configuration.GetConnectionString("LocalDb") ?? "Data Source=agente-pdv.db";
+            var connectionString = configuration.GetConnectionString("LocalDb") ?? "Data Source=data\\agente-pdv.db";
             Log.Information("Connection String: {ConnectionString}", connectionString);
             
             var dbPath = ExtractDatabasePath(connectionString);
-            Log.Information("Caminho do banco extraído: {DbPath}", dbPath ?? "NULL");
+            
+            // Se o caminho não for absoluto, torná-lo relativo ao diretório base da aplicação
+            if (!string.IsNullOrEmpty(dbPath) && !Path.IsPathRooted(dbPath))
+            {
+                dbPath = Path.Combine(AppContext.BaseDirectory, dbPath);
+            }
+            
+            Log.Information("Caminho do banco (absoluto): {DbPath}", dbPath ?? "NULL");
             
             if (!string.IsNullOrEmpty(dbPath))
             {
