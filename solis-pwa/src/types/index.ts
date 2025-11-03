@@ -49,10 +49,10 @@ export interface FormaPagamento {
 // Produto
 export interface Produto {
   id: string
-  codigoBarras?: string
-  codigoInterno?: string
+  codigoBarras: string
+  codigoInterno: string
   nome: string
-  descricao?: string
+  descricao: string
   ncm?: string
   cest?: string
   unidadeMedida: string

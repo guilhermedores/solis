@@ -20,9 +20,9 @@ export default function Venda() {
             
             <button
               onClick={() => navigate('/dashboard')}
-              className="text-gray-600 hover:text-gray-900"
+              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
             >
-              ← Voltar
+              Voltar
             </button>
           </div>
         </div>

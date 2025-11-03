@@ -41,13 +41,13 @@ export const useCarrinhoStore = create<CarrinhoState>((set, get) => ({
   },
   
   // Actions
-  adicionarProduto: (produto, quantidade) => set((state) => {
+  adicionarProduto: (produto: Produto, quantidade: number) => set((state) => {
     const novoItem: VendaItem = {
       id: crypto.randomUUID(),
       vendaId: '', // Será preenchido ao criar a venda
       produtoId: produto.id,
       sequencia: state.itens.length + 1,
-      codigoProduto: produto.codigo,
+      codigoProduto: produto.codigoInterno,
       nomeProduto: produto.nome,
       quantidade,
       precoUnitario: produto.precoVenda,

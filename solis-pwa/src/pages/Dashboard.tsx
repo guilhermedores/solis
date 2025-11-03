@@ -4,11 +4,13 @@ import { healthService, caixaService } from '../services/agente-pdv.service'
 import { useCaixaStore } from '../stores/caixa.store'
 import { useNavigate } from 'react-router-dom'
 import AbrirCaixaModal from '../components/AbrirCaixaModal'
+import FecharCaixaModal from '../components/FecharCaixaModal'
 
 export default function Dashboard() {
   const navigate = useNavigate()
   const { numeroTerminal } = useCaixaStore()
   const [modalAbrirCaixa, setModalAbrirCaixa] = useState(false)
+  const [modalFecharCaixa, setModalFecharCaixa] = useState(false)
   
   // Health check do Agente PDV
   const { data: health, isLoading: loadingHealth, isError: healthError } = useQuery({
@@ -97,6 +99,26 @@ export default function Dashboard() {
                   R$ {caixa.valorAbertura.toFixed(2)}
                 </span>
               </div>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600">Vendas:</span>
+                <span className="font-semibold">{caixa.quantidadeVendas}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600">Total Vendido:</span>
+                <span className="font-semibold text-blue-600">
+                  R$ {caixa.totalVendas.toFixed(2)}
+                </span>
+              </div>
+              
+              <div className="pt-4 border-t">
+                <button 
+                  onClick={() => setModalFecharCaixa(true)}
+                  disabled={healthError}
+                  className="w-full bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-semibold"
+                >
+                  Fechar Caixa
+                </button>
+              </div>
             </div>
           ) : (
             <div className="text-center py-8">
@@ -147,6 +169,15 @@ export default function Dashboard() {
         isOpen={modalAbrirCaixa}
         onClose={() => setModalAbrirCaixa(false)}
       />
+
+      {/* Modal Fechar Caixa */}
+      {caixa && (
+        <FecharCaixaModal 
+          isOpen={modalFecharCaixa}
+          onClose={() => setModalFecharCaixa(false)}
+          caixa={caixa}
+        />
+      )}
     </div>
   )
 }
