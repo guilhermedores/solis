@@ -39,37 +39,31 @@ export const syncService = {
     return data
   },
 
-  // Obter status de todas as sincronizações
+  // Obter status de todas as sincronizações (baseado no localStorage)
   obterStatus: async (): Promise<SyncStatus[]> => {
-    try {
-      const { data } = await api.get<SyncStatus[]>('/api/sync/status')
-      return data
-    } catch (error) {
-      // Se o endpoint não existir, retornar status mock baseado no localStorage
-      return [
-        {
-          tipo: 'produtos',
-          nome: 'Produtos e Preços',
-          descricao: 'Sincronizar catálogo de produtos e tabela de preços',
-          ultimaSincronizacao: localStorage.getItem('sync_produtos_ultima') || null,
-          status: 'idle'
-        },
-        {
-          tipo: 'formas-pagamento',
-          nome: 'Formas de Pagamento',
-          descricao: 'Sincronizar formas de pagamento disponíveis',
-          ultimaSincronizacao: localStorage.getItem('sync_pagamento_ultima') || null,
-          status: 'idle'
-        },
-        {
-          tipo: 'vendas',
-          nome: 'Enviar Vendas',
-          descricao: 'Enviar vendas pendentes para a nuvem',
-          ultimaSincronizacao: localStorage.getItem('sync_vendas_ultima') || null,
-          status: 'idle'
-        }
-      ]
-    }
+    return [
+      {
+        tipo: 'produtos',
+        nome: 'Produtos e Preços',
+        descricao: 'Sincronizar catálogo de produtos e tabela de preços',
+        ultimaSincronizacao: localStorage.getItem('sync_produtos_ultima') || null,
+        status: 'idle'
+      },
+      {
+        tipo: 'formas-pagamento',
+        nome: 'Formas de Pagamento',
+        descricao: 'Sincronizar formas de pagamento disponíveis',
+        ultimaSincronizacao: localStorage.getItem('sync_pagamento_ultima') || null,
+        status: 'idle'
+      },
+      {
+        tipo: 'vendas',
+        nome: 'Enviar Vendas',
+        descricao: 'Enviar vendas pendentes para a nuvem',
+        ultimaSincronizacao: localStorage.getItem('sync_vendas_ultima') || null,
+        status: 'idle'
+      }
+    ]
   },
 
   // Sincronizar tudo

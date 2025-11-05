@@ -21,17 +21,14 @@ public class CaixaController : ControllerBase
     /// Verifica se existe caixa aberto para um terminal
     /// </summary>
     [HttpGet("aberto/{numeroTerminal}")]
-    public async Task<ActionResult<Caixa>> ObterCaixaAberto(int numeroTerminal)
+    public async Task<ActionResult<Caixa?>> ObterCaixaAberto(int numeroTerminal)
     {
         try
         {
             var caixa = await _caixaService.ObterCaixaAbertoAsync(numeroTerminal);
             
-            if (caixa == null)
-            {
-                return NotFound(new { message = $"Nenhum caixa aberto encontrado para o terminal {numeroTerminal}" });
-            }
-
+            // Retornar 200 com null em vez de 404 quando não há caixa aberto
+            // Isso evita logs de erro desnecessários no console do navegador
             return Ok(caixa);
         }
         catch (Exception ex)

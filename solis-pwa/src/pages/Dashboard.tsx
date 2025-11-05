@@ -22,7 +22,7 @@ export default function Dashboard() {
   const { isError: healthError } = useQuery({
     queryKey: ['health'],
     queryFn: healthService.check,
-    refetchInterval: 10000, // Refetch a cada 10s
+    refetchInterval: 20000, // Refetch a cada 30s
     retry: 1, // Apenas 1 retry
     retryDelay: 1000, // 1 segundo entre retries
   })

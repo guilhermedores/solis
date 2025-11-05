@@ -137,15 +137,8 @@ export const caixaService = {
 
   // Obter caixa aberto do terminal
   obterAberto: async (numeroTerminal: number): Promise<Caixa | null> => {
-    try {
-      const { data } = await api.get<Caixa>(`/api/caixa/aberto/${numeroTerminal}`)
-      return data
-    } catch (error: any) {
-      if (error.response?.status === 404) {
-        return null
-      }
-      throw error
-    }
+    const { data } = await api.get<Caixa | null>(`/api/caixa/aberto/${numeroTerminal}`)
+    return data
   },
 
   // Verificar se tem caixa aberto

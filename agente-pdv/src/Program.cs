@@ -18,6 +18,9 @@ try
 
     var builder = WebApplication.CreateBuilder(args);
 
+    // Configurar para rodar apenas HTTP na porta 5000
+    builder.WebHost.UseUrls("http://localhost:5000");
+
     // Configurar para rodar como Windows Service
     builder.Host.UseWindowsService();
 
