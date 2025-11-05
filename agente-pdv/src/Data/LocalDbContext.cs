@@ -25,6 +25,7 @@ public class LocalDbContext : DbContext
     public DbSet<Caixa> Caixas { get; set; }
     public DbSet<FormaPagamento> FormasPagamento { get; set; }
     public DbSet<StatusVenda> StatusVendas { get; set; }
+    public DbSet<Configuracao> Configuracoes { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -208,6 +209,14 @@ public class LocalDbContext : DbContext
             entity.HasIndex(e => e.Sincronizado);
             entity.HasIndex(e => e.Ordem);
             entity.HasIndex(e => new { e.Ativa, e.Ordem });
+        });
+
+        // Configurações de Configuracao
+        modelBuilder.Entity<Configuracao>(entity =>
+        {
+            entity.ToTable("Configuracoes");
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.Chave).IsUnique();
         });
     }
 }

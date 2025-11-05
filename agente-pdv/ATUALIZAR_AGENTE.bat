@@ -59,6 +59,10 @@ echo ========================================
 echo AGENTE ATUALIZADO COM SUCESSO!
 echo ========================================
 echo.
+echo Dados e logs em: C:\ProgramData\Solis\
+echo   - Banco de dados: C:\ProgramData\Solis\data\agente-pdv.db
+echo   - Logs: C:\ProgramData\Solis\logs\
+echo.
 echo Configuracao ativa (appsettings.json):
 type "C:\Solis\AgentePDV\appsettings.json" | findstr "BaseUrl"
 echo.

@@ -131,5 +131,8 @@ Write-Host "Reiniciar servico:" -ForegroundColor Yellow
 Write-Host "  Restart-Service -Name $serviceName" -ForegroundColor White
 Write-Host ""
 Write-Host "Ver logs:" -ForegroundColor Yellow
-Write-Host "  Get-Content 'C:\Solis\AgentePDV\logs\agente-pdv-*.txt' -Tail 50" -ForegroundColor White
+Write-Host "  Get-Content 'C:\ProgramData\Solis\logs\agente-pdv-*.txt' -Tail 50" -ForegroundColor White
+Write-Host ""
+Write-Host "Ver banco de dados:" -ForegroundColor Yellow
+Write-Host "  C:\ProgramData\Solis\data\agente-pdv.db" -ForegroundColor White
 Write-Host ""

@@ -5,8 +5,14 @@ using Solis.AgentePDV.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
-// Configurar Serilog com caminho absoluto para logs
-var logPath = Path.Combine(AppContext.BaseDirectory, "logs", "agente-pdv-.txt");
+// Configurar diretório de dados em C:\ProgramData\Solis
+var dataPath = @"C:\ProgramData\Solis";
+Directory.CreateDirectory(dataPath); // Garantir que o diretório existe
+Directory.CreateDirectory(Path.Combine(dataPath, "logs")); // Criar subpasta de logs
+Directory.CreateDirectory(Path.Combine(dataPath, "data")); // Criar subpasta de dados
+
+// Configurar Serilog com caminho em ProgramData
+var logPath = Path.Combine(dataPath, "logs", "agente-pdv-.txt");
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
     .WriteTo.File(logPath, rollingInterval: RollingInterval.Day)
@@ -41,7 +47,7 @@ try
 
     // Configurar banco de dados local (SQLite)
     var sqliteConnection = builder.Configuration.GetConnectionString("LocalDb") 
-        ?? "Data Source=agente-pdv.db";
+        ?? "Data Source=C:\\ProgramData\\Solis\\data\\agente-pdv.db";
     
     // Usar apenas DbContext normal (Scoped)
     builder.Services.AddDbContext<LocalDbContext>(options =>
@@ -56,6 +62,7 @@ try
     });
 
     // Registrar serviços
+    builder.Services.AddScoped<IConfiguracaoService, ConfiguracaoService>();
     builder.Services.AddScoped<IVendaService, VendaService>();
     builder.Services.AddScoped<IProdutoService, ProdutoService>();
     builder.Services.AddScoped<IPrecoService, PrecoService>();

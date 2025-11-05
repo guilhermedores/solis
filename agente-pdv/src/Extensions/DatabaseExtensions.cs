@@ -21,25 +21,17 @@ public static class DatabaseExtensions
             var localDb = scope.ServiceProvider.GetRequiredService<LocalDbContext>();
             
             // Obter caminho do banco de dados
-            var connectionString = configuration.GetConnectionString("LocalDb") ?? "Data Source=data\\agente-pdv.db";
+            var connectionString = configuration.GetConnectionString("LocalDb") ?? "Data Source=C:\\ProgramData\\Solis\\data\\agente-pdv.db";
             Log.Information("Connection String: {ConnectionString}", connectionString);
             
             var dbPath = ExtractDatabasePath(connectionString);
             
-            // Se o caminho não for absoluto, torná-lo relativo ao diretório base da aplicação
-            if (!string.IsNullOrEmpty(dbPath) && !Path.IsPathRooted(dbPath))
-            {
-                dbPath = Path.Combine(AppContext.BaseDirectory, dbPath);
-            }
-            
-            Log.Information("Caminho do banco (absoluto): {DbPath}", dbPath ?? "NULL");
+            Log.Information("Caminho do banco de dados: {DbPath}", dbPath ?? "NULL");
             
             if (!string.IsNullOrEmpty(dbPath))
             {
                 // Criar diretório se necessário
                 EnsureDirectoryExists(dbPath);
-                
-                // NÃO criar arquivo vazio antes! EnsureCreated() precisa que o banco não exista
             }
             
             // Criar/atualizar schema do banco de dados
@@ -74,6 +66,32 @@ public static class DatabaseExtensions
     {
         try
         {
+            // Seed de Configurações
+            if (!context.Configuracoes.Any())
+            {
+                var configuracoes = new[]
+                {
+                    new Solis.AgentePDV.Models.Configuracao
+                    {
+                        Chave = "NumeroTerminal",
+                        Valor = "1",
+                        CriadoEm = DateTime.UtcNow,
+                        AtualizadoEm = DateTime.UtcNow
+                    },
+                    new Solis.AgentePDV.Models.Configuracao
+                    {
+                        Chave = "NomeTerminal",
+                        Valor = "PDV 01",
+                        CriadoEm = DateTime.UtcNow,
+                        AtualizadoEm = DateTime.UtcNow
+                    }
+                };
+                
+                context.Configuracoes.AddRange(configuracoes);
+                context.SaveChanges();
+                Log.Information("Configurações iniciais criadas no banco de dados");
+            }
+
             // Seed de StatusVenda
             if (!context.StatusVendas.Any())
             {
