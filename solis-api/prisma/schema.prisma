@@ -58,6 +58,55 @@ model TokenVinculacao {
 }
 
 // ============================================
+// EMPRESA (Dados para Cupom Fiscal)
+// ============================================
+
+model Empresa {
+  id                String    @id @default(uuid())
+  
+  // Dados da Empresa
+  razaoSocial       String    @map("razao_social") @db.VarChar(255)
+  nomeFantasia      String?   @map("nome_fantasia") @db.VarChar(255)
+  cnpj              String    @db.VarChar(18)
+  inscricaoEstadual String?   @map("inscricao_estadual") @db.VarChar(20)
+  inscricaoMunicipal String?  @map("inscricao_municipal") @db.VarChar(20)
+  
+  // Endereço
+  logradouro        String    @db.VarChar(255)
+  numero            String    @db.VarChar(20)
+  complemento       String?   @db.VarChar(100)
+  bairro            String    @db.VarChar(100)
+  cidade            String    @db.VarChar(100)
+  uf                String    @db.VarChar(2)
+  cep               String    @db.VarChar(9)
+  
+  // Contato
+  telefone          String?   @db.VarChar(20)
+  email             String?   @db.VarChar(255)
+  site              String?   @db.VarChar(255)
+  
+  // Regime Tributário
+  regimeTributario  String    @map("regime_tributario") @db.VarChar(50) // simples_nacional, lucro_presumido, lucro_real
+  
+  // Informações Fiscais
+  certificadoDigital String?  @map("certificado_digital") @db.Text // Base64 do certificado
+  senhaCertificado  String?   @map("senha_certificado") @db.VarChar(255) // Criptografada
+  ambienteFiscal    String    @default("homologacao") @map("ambiente_fiscal") @db.VarChar(20) // producao, homologacao
+  
+  // Logo (Base64)
+  logo              String?   @db.Text
+  
+  // Controle
+  ativo             Boolean   @default(true)
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+  
+  @@map("empresas")
+  @@index([cnpj])
+  @@index([ativo])
+}
+
+// ============================================
 // PRODUTOS
 // ============================================
 

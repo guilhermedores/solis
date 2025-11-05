@@ -33,6 +33,12 @@ export const syncService = {
     return data
   },
 
+  // Sincronizar empresas
+  syncEmpresas: async (): Promise<SyncResponse> => {
+    const { data } = await api.post<SyncResponse>('/api/empresas/sincronizar')
+    return data
+  },
+
   // Enviar vendas pendentes
   enviarVendas: async (): Promise<SyncResponse> => {
     const { data } = await api.post<SyncResponse>('/api/vendas/enviar-pendentes')
@@ -47,6 +53,13 @@ export const syncService = {
         nome: 'Produtos e Preços',
         descricao: 'Sincronizar catálogo de produtos e tabela de preços',
         ultimaSincronizacao: localStorage.getItem('sync_produtos_ultima') || null,
+        status: 'idle'
+      },
+      {
+        tipo: 'empresas',
+        nome: 'Dados da Empresa',
+        descricao: 'Sincronizar informações da empresa para emissão de cupons fiscais',
+        ultimaSincronizacao: localStorage.getItem('sync_empresas_ultima') || null,
         status: 'idle'
       },
       {
@@ -77,6 +90,17 @@ export const syncService = {
       resultados.push({
         sucesso: false,
         mensagem: 'Erro ao sincronizar produtos',
+        erros: [error.message]
+      })
+    }
+
+    try {
+      const empresas = await syncService.syncEmpresas()
+      resultados.push(empresas)
+    } catch (error: any) {
+      resultados.push({
+        sucesso: false,
+        mensagem: 'Erro ao sincronizar empresas',
         erros: [error.message]
       })
     }

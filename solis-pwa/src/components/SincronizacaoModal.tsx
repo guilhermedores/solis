@@ -54,6 +54,22 @@ export default function SincronizacaoModal({ isOpen, onClose }: SincronizacaoMod
     }
   })
 
+  // Mutation para sincronizar empresas
+  const syncEmpresasMutation = useMutation({
+    mutationFn: syncService.syncEmpresas,
+    onMutate: () => {
+      updateItemStatus('empresas', 'syncing')
+    },
+    onSuccess: (data) => {
+      updateItemStatus('empresas', 'success', undefined, data.total)
+      localStorage.setItem('sync_empresas_ultima', new Date().toISOString())
+      setTimeout(() => refetch(), 1000)
+    },
+    onError: (error: any) => {
+      updateItemStatus('empresas', 'error', error.message)
+    }
+  })
+
   // Mutation para sincronizar formas de pagamento
   const syncPagamentoMutation = useMutation({
     mutationFn: syncService.syncFormasPagamento,
@@ -122,6 +138,9 @@ export default function SincronizacaoModal({ isOpen, onClose }: SincronizacaoMod
     switch (tipo) {
       case 'produtos':
         syncProdutosMutation.mutate()
+        break
+      case 'empresas':
+        syncEmpresasMutation.mutate()
         break
       case 'formas-pagamento':
         syncPagamentoMutation.mutate()

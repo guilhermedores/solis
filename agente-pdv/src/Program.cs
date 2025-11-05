@@ -76,6 +76,7 @@ try
     builder.Services.AddScoped<IFormaPagamentoService, FormaPagamentoService>();
     builder.Services.AddScoped<IStatusVendaService, StatusVendaService>();
     builder.Services.AddScoped<SincronizacaoFiscalService>();
+    builder.Services.AddScoped<EmpresaService>();
     builder.Services.AddSingleton<IImpressoraService, ImpressoraService>();
     builder.Services.AddSingleton<IGavetaService, GavetaService>();
     builder.Services.AddSingleton<IPerifericoService, PerifericoService>();

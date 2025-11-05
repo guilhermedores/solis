@@ -274,12 +274,129 @@ const swaggerDefinition = {
           },
         },
       },
+      Empresa: {
+        type: 'object',
+        properties: {
+          id: {
+            type: 'string',
+            format: 'uuid',
+            description: 'ID único da empresa',
+          },
+          razaoSocial: {
+            type: 'string',
+            description: 'Razão social da empresa',
+            example: 'EMPRESA DEMO LTDA',
+          },
+          nomeFantasia: {
+            type: 'string',
+            description: 'Nome fantasia',
+            example: 'Loja Demo',
+          },
+          cnpj: {
+            type: 'string',
+            description: 'CNPJ (14 dígitos)',
+            example: '12345678000190',
+          },
+          inscricaoEstadual: {
+            type: 'string',
+            description: 'Inscrição estadual',
+          },
+          inscricaoMunicipal: {
+            type: 'string',
+            description: 'Inscrição municipal',
+          },
+          logradouro: {
+            type: 'string',
+            description: 'Endereço - logradouro',
+            example: 'Rua das Flores',
+          },
+          numero: {
+            type: 'string',
+            description: 'Endereço - número',
+            example: '123',
+          },
+          complemento: {
+            type: 'string',
+            description: 'Endereço - complemento',
+            example: 'Sala 1',
+          },
+          bairro: {
+            type: 'string',
+            description: 'Endereço - bairro',
+            example: 'Centro',
+          },
+          cidade: {
+            type: 'string',
+            description: 'Endereço - cidade',
+            example: 'São Paulo',
+          },
+          uf: {
+            type: 'string',
+            description: 'Endereço - UF',
+            example: 'SP',
+          },
+          cep: {
+            type: 'string',
+            description: 'CEP (8 dígitos)',
+            example: '01234567',
+          },
+          telefone: {
+            type: 'string',
+            description: 'Telefone de contato',
+            example: '11987654321',
+          },
+          email: {
+            type: 'string',
+            format: 'email',
+            description: 'E-mail de contato',
+            example: 'contato@empresademo.com.br',
+          },
+          site: {
+            type: 'string',
+            format: 'uri',
+            description: 'Website',
+          },
+          regimeTributario: {
+            type: 'string',
+            enum: ['simples_nacional', 'lucro_presumido', 'lucro_real'],
+            description: 'Regime tributário',
+            example: 'simples_nacional',
+          },
+          ambienteFiscal: {
+            type: 'string',
+            enum: ['producao', 'homologacao'],
+            description: 'Ambiente fiscal (produção ou homologação)',
+            example: 'homologacao',
+          },
+          logo: {
+            type: 'string',
+            description: 'Logo em Base64',
+          },
+          ativo: {
+            type: 'boolean',
+            description: 'Se a empresa está ativa',
+            example: true,
+          },
+          createdAt: {
+            type: 'string',
+            format: 'date-time',
+          },
+          updatedAt: {
+            type: 'string',
+            format: 'date-time',
+          },
+        },
+      },
     },
   },
   tags: [
     {
       name: 'Health',
       description: 'Health check e status da API',
+    },
+    {
+      name: 'Empresas',
+      description: 'Gerenciamento de empresas (dados para cupom fiscal)',
     },
     {
       name: 'Produtos',
