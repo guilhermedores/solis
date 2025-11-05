@@ -5,6 +5,18 @@ import { getTenantDatabaseConfig } from './database'
 const prismaClients = new Map<string, PrismaClient>()
 
 /**
+ * Cliente Prisma para o schema público (tenants)
+ * Usado para gerenciar tenants e tokens de vinculação
+ */
+export const prismaPublic = new PrismaClient({
+  datasources: {
+    db: {
+      url: process.env.DATABASE_URL
+    }
+  }
+})
+
+/**
  * Retorna uma instância do Prisma Client configurada para o tenant específico
  * Implementa connection pooling com cache de clientes por tenant
  */

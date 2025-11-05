@@ -6,7 +6,8 @@ using Solis.AgentePDV.Models;
 namespace Solis.AgentePDV.Services;
 
 /// <summary>
-/// Serviço para gerenciar configurações do agente, incluindo autenticação com a API
+/// Serviço para gerenciar configurações do agente, incluindo vinculação com tenant via token JWT
+/// IMPORTANTE: O token JWT serve apenas para vincular o agente ao tenant, NÃO é token de autenticação de usuário
 /// </summary>
 public interface IConfiguracaoService
 {

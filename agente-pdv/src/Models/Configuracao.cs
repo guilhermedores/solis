@@ -2,7 +2,7 @@ namespace Solis.AgentePDV.Models;
 
 /// <summary>
 /// Configuração do terminal/PDV
-/// Armazena configurações locais do ponto de venda e autenticação com a API
+/// Armazena configurações locais do ponto de venda e vinculação com tenant
 /// </summary>
 public class Configuracao
 {
@@ -12,19 +12,21 @@ public class Configuracao
     public string Chave { get; set; } = string.Empty;
     public string Valor { get; set; } = string.Empty;
     
-    // Autenticação e vinculação com tenant
+    // Vinculação com tenant (NÃO é autenticação de usuário)
     /// <summary>
-    /// Token JWT para autenticação com a API Solis
+    /// Token JWT para vincular agente ao tenant (não é token de autenticação de usuário)
+    /// Contém: tenant, agentName, type, validade
     /// </summary>
     public string? Token { get; set; }
     
     /// <summary>
     /// ID do tenant (cliente) ao qual este agente está vinculado
+    /// Extraído do token JWT durante configuração inicial
     /// </summary>
     public string? TenantId { get; set; }
     
     /// <summary>
-    /// Data de expiração do token JWT
+    /// Data de expiração do token JWT de vinculação
     /// </summary>
     public DateTime? TokenValidoAte { get; set; }
     
@@ -35,6 +37,7 @@ public class Configuracao
     
     /// <summary>
     /// Nome do agente/PDV (exemplo: "PDV Loja Centro")
+    /// Extraído do token JWT durante configuração inicial
     /// </summary>
     public string? NomeAgente { get; set; }
     

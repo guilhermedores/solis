@@ -9,12 +9,18 @@ public class ProdutoService : IProdutoService
 {
     private readonly LocalDbContext _context;
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly IConfiguracaoService _configuracaoService;
     private readonly ILogger<ProdutoService> _logger;
 
-    public ProdutoService(LocalDbContext context, IHttpClientFactory httpClientFactory, ILogger<ProdutoService> logger)
+    public ProdutoService(
+        LocalDbContext context, 
+        IHttpClientFactory httpClientFactory, 
+        IConfiguracaoService configuracaoService,
+        ILogger<ProdutoService> logger)
     {
         _context = context;
         _httpClientFactory = httpClientFactory;
+        _configuracaoService = configuracaoService;
         _logger = logger;
     }
 
@@ -74,10 +80,15 @@ public class ProdutoService : IProdutoService
         {
             _logger.LogInformation("Iniciando sincronizacao de produtos...");
             
-            // Busca produtos da API (limit alto para pegar todos)
-            // TODO: Obter tenant da configuração do PDV
-            var tenant = "demo"; // Por enquanto fixo, depois vem da config
-            var response = await client.GetAsync($"/api/produtos?tenant={tenant}&limit=1000");
+            // Obtém tenant da configuração (já foi extraído do token JWT)
+            var tenantId = _configuracaoService.ObterTenantId();
+            if (string.IsNullOrEmpty(tenantId))
+            {
+                _logger.LogWarning("Agente não configurado. TenantId não encontrado. Sincronização cancelada.");
+                return;
+            }
+
+            var response = await client.GetAsync($"/api/produtos?tenant={tenantId}&limit=1000");
             
             if (!response.IsSuccessStatusCode)
             {

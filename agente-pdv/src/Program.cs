@@ -2,6 +2,7 @@ using Solis.AgentePDV;
 using Solis.AgentePDV.Data;
 using Solis.AgentePDV.Services;
 using Solis.AgentePDV.Extensions;
+using Solis.AgentePDV.Security;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
@@ -53,16 +54,20 @@ try
     builder.Services.AddDbContext<LocalDbContext>(options =>
         options.UseSqlite(sqliteConnection));
 
-    // Configurar HttpClient para comunicação com Solis API
+    // Registrar serviços (precisa estar antes do HttpClient para injeção de dependência)
+    builder.Services.AddScoped<IConfiguracaoService, ConfiguracaoService>();
+    builder.Services.AddTransient<TenantHandler>();
+
+    // Configurar HttpClient para comunicação com Solis API (com X-Tenant header automático)
     builder.Services.AddHttpClient("SolisApi", client =>
     {
-        var apiUrl = builder.Configuration["SolisApi:BaseUrl"] ?? "http://solis-api:3000";
+        var apiUrl = builder.Configuration["SolisApi:BaseUrl"] ?? "http://localhost:3000";
         client.BaseAddress = new Uri(apiUrl);
         client.Timeout = TimeSpan.FromSeconds(30);
-    });
+    })
+    .AddHttpMessageHandler<TenantHandler>(); // Adiciona X-Tenant header automaticamente
 
-    // Registrar serviços
-    builder.Services.AddScoped<IConfiguracaoService, ConfiguracaoService>();
+    // Registrar outros serviços
     builder.Services.AddScoped<IVendaService, VendaService>();
     builder.Services.AddScoped<IProdutoService, ProdutoService>();
     builder.Services.AddScoped<IPrecoService, PrecoService>();

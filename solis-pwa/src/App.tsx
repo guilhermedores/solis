@@ -2,10 +2,14 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
-// Pages (vamos criar depois)
+// Pages
 import Dashboard from './pages/Dashboard'
 import Venda from './pages/Venda'
 import Login from './pages/Login'
+import ConfigurarAgente from './pages/ConfigurarAgente'
+
+// Components
+import ProtectedRoute from './components/ProtectedRoute'
 
 // Criar cliente do React Query
 const queryClient = new QueryClient({
@@ -24,9 +28,15 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/venda" element={<Venda />} />
+          {/* Rota de configuração (não protegida) */}
+          <Route path="/configurar-agente" element={<ConfigurarAgente />} />
+          
+          {/* Rotas protegidas - só acessíveis se agente estiver configurado */}
+          <Route path="/login" element={<ProtectedRoute><Login /></ProtectedRoute>} />
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/venda" element={<ProtectedRoute><Venda /></ProtectedRoute>} />
+          
+          {/* Rota raiz redireciona para dashboard */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </BrowserRouter>

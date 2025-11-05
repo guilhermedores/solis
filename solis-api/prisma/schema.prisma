@@ -10,48 +10,96 @@ datasource db {
 }
 
 // ============================================
+// TENANTS (Schema: public)
+// ============================================
+
+model Tenant {
+  id           String    @id @default(uuid()) @db.Uuid
+  subdomain    String    @unique @db.VarChar(100)
+  companyName  String    @map("company_name") @db.VarChar(255)
+  cnpj         String?   @unique @db.VarChar(18)
+  active       Boolean   @default(true)
+  plan         String    @default("basic") @db.VarChar(50)
+  maxTerminals Int       @default(1) @map("max_terminals")
+  maxUsers     Int       @default(5) @map("max_users")
+  features     Json      @default("{}")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @default(now()) @updatedAt @map("updated_at")
+  deletedAt    DateTime? @map("deleted_at")
+
+  // Relacionamentos
+  tokenVinculacoes TokenVinculacao[]
+
+  @@index([subdomain, active])
+  @@index([active])
+  @@map("tenants")
+}
+
+// Tabela para gerenciar tokens de vinculação de agentes/terminais
+model TokenVinculacao {
+  id         String    @id @default(uuid()) @db.Uuid
+  tenantId   String    @map("tenant_id") @db.Uuid
+  token      String    @unique @db.VarChar(500)
+  nomeAgente String    @map("nome_agente") @db.VarChar(100)
+  tipo       String    @default("terminal") @db.VarChar(50) // terminal, mobile, etc
+  ativo      Boolean   @default(true)
+  validoAte  DateTime? @map("valido_ate")
+  ultimoUso  DateTime? @map("ultimo_uso")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([token])
+  @@index([ativo, validoAte])
+  @@map("token_vinculacoes")
+}
+
+// ============================================
 // PRODUTOS
 // ============================================
 
 model Produto {
-  id              String   @id @default(uuid())
-  codigoBarras    String?  @map("codigo_barras")
-  codigoInterno   String?  @map("codigo_interno")
-  nome            String
-  descricao       String?
-  unidadeMedida   String   @map("unidade_medida")
-  categoria       String?
-  ncm             String?
-  cest            String?
-  cfop            String?
-  ativo           Boolean  @default(true)
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
+  id            String   @id @default(uuid())
+  codigoBarras  String?  @map("codigo_barras")
+  codigoInterno String?  @map("codigo_interno")
+  nome          String
+  descricao     String?
+  unidadeMedida String   @map("unidade_medida")
+  categoria     String?
+  ncm           String?
+  cest          String?
+  cfop          String?
+  ativo         Boolean  @default(true)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
 
   // Relacionamentos
-  precos          ProdutoPreco[]
-  vendaItens      VendaItem[]
+  precos     ProdutoPreco[]
+  vendaItens VendaItem[]
 
-  @@map("produtos")
   @@index([codigoBarras])
   @@index([codigoInterno])
   @@index([nome])
+  @@map("produtos")
 }
 
 model ProdutoPreco {
-  id          String   @id @default(uuid())
-  produtoId   String   @map("produto_id")
-  precoVenda  Float    @map("preco_venda")
-  precoCusto  Float?   @map("preco_custo")
-  ativo       Boolean  @default(true)
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id         String   @id @default(uuid())
+  produtoId  String   @map("produto_id")
+  precoVenda Float    @map("preco_venda")
+  precoCusto Float?   @map("preco_custo")
+  ativo      Boolean  @default(true)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
 
   // Relacionamentos
-  produto     Produto  @relation(fields: [produtoId], references: [id], onDelete: Cascade)
+  produto Produto @relation(fields: [produtoId], references: [id], onDelete: Cascade)
 
-  @@map("produto_precos")
   @@index([produtoId])
+  @@map("produto_precos")
 }
 
 // ============================================
@@ -59,13 +107,13 @@ model ProdutoPreco {
 // ============================================
 
 model FormaPagamento {
-  id              String   @id @default(uuid())
-  nome            String
-  tipo            String   // dinheiro, pix, cartao_credito, cartao_debito, boleto
-  taxaPercentual  Float?   @map("taxa_percentual")
-  ativo           Boolean  @default(true)
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
+  id             String   @id @default(uuid())
+  nome           String
+  tipo           String // dinheiro, pix, cartao_credito, cartao_debito, boleto
+  taxaPercentual Float?   @map("taxa_percentual")
+  ativo          Boolean  @default(true)
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
 
   // Relacionamentos
   vendaPagamentos VendaPagamento[]
@@ -78,58 +126,58 @@ model FormaPagamento {
 // ============================================
 
 model Venda {
-  id              String   @id @default(uuid())
-  numeroVenda     Int      @map("numero_venda")
-  dataVenda       DateTime @default(now()) @map("data_venda")
-  valorTotal      Float    @map("valor_total")
-  valorDesconto   Float?   @default(0) @map("valor_desconto")
-  valorFinal      Float    @map("valor_final")
-  status          String   @default("finalizada") // finalizada, cancelada
-  observacoes     String?
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
+  id            String   @id @default(uuid())
+  numeroVenda   Int      @map("numero_venda")
+  dataVenda     DateTime @default(now()) @map("data_venda")
+  valorTotal    Float    @map("valor_total")
+  valorDesconto Float?   @default(0) @map("valor_desconto")
+  valorFinal    Float    @map("valor_final")
+  status        String   @default("finalizada") // finalizada, cancelada
+  observacoes   String?
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
 
   // Relacionamentos
-  itens           VendaItem[]
-  pagamentos      VendaPagamento[]
+  itens      VendaItem[]
+  pagamentos VendaPagamento[]
 
-  @@map("vendas")
   @@index([numeroVenda])
   @@index([dataVenda])
+  @@map("vendas")
 }
 
 model VendaItem {
-  id              String   @id @default(uuid())
-  vendaId         String   @map("venda_id")
-  produtoId       String   @map("produto_id")
-  quantidade      Float
-  precoUnitario   Float    @map("preco_unitario")
-  subtotal        Float
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
+  id            String   @id @default(uuid())
+  vendaId       String   @map("venda_id")
+  produtoId     String   @map("produto_id")
+  quantidade    Float
+  precoUnitario Float    @map("preco_unitario")
+  subtotal      Float
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
 
   // Relacionamentos
-  venda           Venda    @relation(fields: [vendaId], references: [id], onDelete: Cascade)
-  produto         Produto  @relation(fields: [produtoId], references: [id])
+  venda   Venda   @relation(fields: [vendaId], references: [id], onDelete: Cascade)
+  produto Produto @relation(fields: [produtoId], references: [id])
 
-  @@map("venda_itens")
   @@index([vendaId])
   @@index([produtoId])
+  @@map("venda_itens")
 }
 
 model VendaPagamento {
-  id                  String   @id @default(uuid())
-  vendaId             String   @map("venda_id")
-  formaPagamentoId    String   @map("forma_pagamento_id")
-  valor               Float
-  createdAt           DateTime @default(now()) @map("created_at")
-  updatedAt           DateTime @updatedAt @map("updated_at")
+  id               String   @id @default(uuid())
+  vendaId          String   @map("venda_id")
+  formaPagamentoId String   @map("forma_pagamento_id")
+  valor            Float
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
 
   // Relacionamentos
-  venda               Venda           @relation(fields: [vendaId], references: [id], onDelete: Cascade)
-  formaPagamento      FormaPagamento  @relation(fields: [formaPagamentoId], references: [id])
+  venda          Venda          @relation(fields: [vendaId], references: [id], onDelete: Cascade)
+  formaPagamento FormaPagamento @relation(fields: [formaPagamentoId], references: [id])
 
-  @@map("venda_pagamentos")
   @@index([vendaId])
   @@index([formaPagamentoId])
+  @@map("venda_pagamentos")
 }
