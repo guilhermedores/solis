@@ -71,7 +71,7 @@ export default function ConfigurarAgente() {
             Configuração Inicial
           </h1>
           <p className="text-gray-600">
-            Configure o agente PDV vinculando-o ao seu estabelecimento
+            Configure o terminal vinculando-o ao seu estabelecimento
           </p>
         </div>
 
@@ -90,13 +90,13 @@ export default function ConfigurarAgente() {
             </div>
             <div className="ml-3">
               <p className="text-sm text-blue-700">
-                <strong>Como obter o token:</strong>
+                <strong>Como obter o código:</strong>
                 <br />
                 1. Acesse o Solis Admin
                 <br />
-                2. Gere um token para este PDV
+                2. Gere um código para este terminal
                 <br />
-                3. Cole o token abaixo
+                3. Cole o código abaixo
               </p>
             </div>
           </div>
@@ -107,7 +107,7 @@ export default function ConfigurarAgente() {
           {/* Token */}
           <div>
             <label htmlFor="token" className="block text-sm font-medium text-gray-700 mb-2">
-              Token JWT <span className="text-red-500">*</span>
+              Código de acesso <span className="text-red-500">*</span>
             </label>
             <textarea
               id="token"
@@ -120,7 +120,7 @@ export default function ConfigurarAgente() {
               disabled={loading}
             />
             <p className="mt-1 text-xs text-gray-500">
-              Cole aqui o token gerado pela API para este terminal
+              Cole aqui o código gerado pelo sistema para este terminal
             </p>
           </div>
 
