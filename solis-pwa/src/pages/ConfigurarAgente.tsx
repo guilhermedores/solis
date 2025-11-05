@@ -152,7 +152,7 @@ export default function ConfigurarAgente() {
                 Configurando...
               </span>
             ) : (
-              'Configurar Agente'
+              'Configurar Terminal'
             )}
           </button>
         </form>
