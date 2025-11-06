@@ -1,366 +1,293 @@
-# 🏪 Sistema Solis PDV
+# Solis - Sistema de PDV Multi-tenant
 
-Sistema completo de Ponto de Venda (PDV/POS) com arquitetura moderna, containerizado com Docker.
+Documentação central do ecossistema Solis - Sistema completo de Ponto de Venda com arquitetura multi-tenant e suporte offline.
 
-## 📋 Índice
-
-- [Visão Geral](#visão-geral)
-- [Arquitetura](#arquitetura)
-- [Tecnologias](#tecnologias)
-- [Estrutura do Projeto](#estrutura-do-projeto)
-- [Pré-requisitos](#pré-requisitos)
-- [Instalação](#instalação)
-- [Uso](#uso)
-- [Desenvolvimento](#desenvolvimento)
-- [Variáveis de Ambiente](#variáveis-de-ambiente)
-
-## 🎯 Visão Geral
-
-O Sistema Solis PDV é uma solução completa para gestão de vendas, estoque e operações de caixa. O sistema é composto por:
-
-- **API Nuvem**: Backend principal em Node.js
-- **Agente PDV**: Serviço .NET para gerenciamento de periféricos (impressoras, gaveta, TEF, SAT/MFe)
-- **App PWA**: Aplicação Progressive Web App para operação de caixa
-- **App Admin**: Aplicação web para gestão administrativa
-- **Banco de Dados**: PostgreSQL para persistência de dados
-
-## 🏗️ Arquitetura
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                         NUVEM                               │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  ┌──────────┐       ┌───────────┐       ┌──────────┐      │
-│  │   Auth   │──────▶│ API Nuvem │──────▶│  Banco   │      │
-│  └──────────┘       └─────┬─────┘       │  (Postgres) │   │
-│                           │             └──────────┘      │
-│                           │                               │
-│                           ▼                               │
-│                    ┌────────────┐                         │
-│                    │  App Admin │                         │
-│                    │   (Web)    │                         │
-│                    └────────────┘                         │
-└─────────────────────────────────────────────────────────────┘
-                           │
-                           │ HTTPS / Sync
-                           │
-┌─────────────────────────────────────────────────────────────┐
-│                    CAIXA / DISPOSITIVO                      │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  ┌──────────────┐         ┌──────────────┐                │
-│  │   App PWA    │◀───────▶│  Agente PDV  │                │
-│  │ (IndexedDB)  │         │    (.NET)     │                │
-│  └──────────────┘         └───────┬──────┘                │
-│                                    │                        │
-│                    ┌───────────────┴──────────────┐        │
-│                    ▼               ▼              ▼        │
-│              ┌─────────┐    ┌─────────┐    ┌─────────┐   │
-│              │   TEF   │    │ Fiscal  │    │Impressora│  │
-│              └─────────┘    │SAT/MFe│    │  Gaveta  │  │
-│                             └─────────┘    └─────────┘   │
-└─────────────────────────────────────────────────────────────┘
-```
-
-## 🛠️ Tecnologias
+## 📦 Repositórios do Projeto
 
 ### Backend
-- **Node.js** 18+ (API Nuvem)
-- **.NET** 8.0 (Agente PDV)
-- **PostgreSQL** 15 (Banco de Dados)
+- **[solis-api](https://github.com/guilhermedores/solis-api)** - API REST em Next.js com Prisma e PostgreSQL multi-tenant
 
 ### Frontend
-- **React** / Vue / Angular (configurável)
-- **PWA** (Progressive Web App)
-- **Nginx** (Servidor web)
+- **[solis-pwa](https://github.com/guilhermedores/solis-pwa)** - Progressive Web App do PDV (React + Vite)
+- **[solis-admin](https://github.com/guilhermedores/solis-admin)** - Painel administrativo web
 
-### DevOps
-- **Docker** & **Docker Compose**
-- **Git**
+### Agente Local
+- **[solis-agente](https://github.com/guilhermedores/solis-agente)** - Agente Windows em .NET para comunicação offline
 
-## 📁 Estrutura do Projeto
+## 🏗️ Arquitetura Geral
 
 ```
-solis/
-├── solis-api/              # API Backend (Node.js)
-│   ├── src/
-│   ├── Dockerfile
-│   └── package.json
-│
-├── agente-pdv/             # Agente PDV (.NET)
-│   ├── src/
-│   ├── Dockerfile
-│   └── Solis.AgentePDV.csproj
-│
-├── solis-pwa/                # App de Caixa (React/PWA)
-│   ├── src/
-│   ├── Dockerfile
-│   ├── nginx.conf
-│   └── package.json
-│
-├── solis-admin/              # App Administrativo (React)
-│   ├── src/
-│   ├── Dockerfile
-│   ├── nginx.conf
-│   └── package.json
-│
-├── database/               # Configurações do banco
-│   └── init/
-│       └── 01-init-database.sql
-│
-├── volumes/                # Volumes persistentes
-│   ├── db-data/
-│   ├── api-logs/
-│   ├── pdv-logs/
-│   └── fiscal-data/
-│
-├── docker-compose.yml      # Orquestração dos serviços
-├── .env                    # Variáveis de ambiente
-└── README.md              # Este arquivo
+┌─────────────────────────────────────────────────────────────┐
+│                      CLOUD (Multi-tenant)                    │
+│  ┌────────────────┐          ┌──────────────────┐          │
+│  │   solis-api    │ ←─────→  │   PostgreSQL     │          │
+│  │   (Next.js)    │          │  (Multi-schema)  │          │
+│  └────────┬───────┘          └──────────────────┘          │
+│           │ HTTPS + X-Tenant Header                         │
+└───────────┼─────────────────────────────────────────────────┘
+            │
+            │ Internet
+            │
+┌───────────▼─────────────────────────────────────────────────┐
+│                    LOJA LOCAL (Offline-first)                │
+│                                                               │
+│  ┌────────────────┐          ┌──────────────────┐          │
+│  │ solis-agente   │ ←─────→  │     SQLite       │          │
+│  │   (.NET 8)     │          │   (Local DB)     │          │
+│  └────────┬───────┘          └──────────────────┘          │
+│           │ HTTP (localhost:5000)                           │
+│           │                                                  │
+│  ┌────────▼───────┐          ┌──────────────────┐          │
+│  │   solis-pwa    │          │   Periféricos    │          │
+│  │ (React PWA)    │ ←─────→  │ Impressora, TEF, │          │
+│  │ localhost:80   │          │  SAT, Gaveta     │          │
+│  └────────────────┘          └──────────────────┘          │
+└───────────────────────────────────────────────────────────────┘
 ```
 
-## ⚙️ Pré-requisitos
+## 🚀 Stack Tecnológica
 
-Antes de começar, você precisa ter instalado:
+### API Backend
+- Next.js 16 (App Router)
+- TypeScript
+- Prisma ORM
+- PostgreSQL (multi-tenant com schemas)
+- JWT Authentication
+- Swagger/OpenAPI
 
-- [Docker](https://www.docker.com/get-started) (versão 20.10 ou superior)
-- [Docker Compose](https://docs.docker.com/compose/install/) (versão 2.0 ou superior)
-- [Git](https://git-scm.com/)
+### PWA Frontend
+- React 18
+- TypeScript
+- Vite
+- TailwindCSS
+- Zustand (state management)
+- Service Workers (offline)
 
-### Verificar instalação:
+### Agente Local
+- .NET 8
+- C#
+- Entity Framework Core
+- SQLite
+- Serilog
+- Windows Service
 
-```powershell
-docker --version
-docker-compose --version
-git --version
+## 📋 Fluxo de Instalação (Técnico de Campo)
+
+Documentação completa: [INSTALACAO_TECNICO.md](./INSTALACAO_TECNICO.md)
+
+### Resumo Rápido
+
+1. **Instalar PostgreSQL** (servidor central)
+2. **Executar migrations** (database/init/*.sql)
+3. **Instalar solis-api** (npm install && npm run dev)
+4. **Instalar solis-agente** (dotnet publish + instalar-servico.ps1)
+5. **Configurar agente** (token JWT via API)
+6. **Acessar PWA** (navegador → http://localhost)
+
+⏱️ Tempo estimado: **45-60 minutos**
+
+## 🔐 Multi-tenancy
+
+### Isolamento por Schema PostgreSQL
+
+```sql
+-- Schema público (controle)
+public.tenants → tenant_id, nome, ativo, criado_em
+
+-- Schemas isolados por tenant
+tenant_demo.produtos
+tenant_demo.vendas
+tenant_demo.empresas
+tenant_xyz.produtos
+tenant_xyz.vendas
+tenant_xyz.empresas
 ```
 
-## 🚀 Instalação
+### Roteamento de Requisições
 
-### 1. Clone o repositório
+```typescript
+// Middleware extrai tenant do header
+const tenant = request.headers.get('X-Tenant')
 
-```powershell
-git clone <url-do-repositorio>
-cd solis
+// Prisma conecta no schema correto
+const prisma = await getPrismaClient(tenant)
+const produtos = await prisma.produto.findMany()
+// → SELECT * FROM tenant_demo.produtos
 ```
 
-### 2. Configure as variáveis de ambiente
+## 📡 Sincronização Offline
 
-Edite o arquivo `.env` com suas configurações:
+### Outbox Pattern
 
-```powershell
-notepad .env
+```csharp
+// 1. Venda criada localmente (SQLite)
+var venda = new Venda { ... }
+context.Vendas.Add(venda)
+
+// 2. Mensagem adicionada ao Outbox
+var outbox = new OutboxMessage {
+    TipoEntidade = "Venda",
+    Operacao = "CREATE",
+    PayloadJson = JsonSerializer.Serialize(venda),
+    EndpointApi = "/api/vendas"
+}
+context.OutboxMessages.Add(outbox)
+context.SaveChanges()
+
+// 3. Background Service processa fila
+OutboxProcessorService → POST /api/vendas → 200 OK → Marca como enviado
 ```
 
-**IMPORTANTE**: Altere as senhas e chaves secretas antes de colocar em produção!
+## 🔒 Segurança
 
-### 3. Inicie os serviços
+### JWT Token para Agente
 
-```powershell
-docker-compose up -d
+```typescript
+// API gera token com tenant embedado
+POST /api/auth/generate-agent-token
+{
+  "tenantId": "demo",
+  "adminKey": "admin-secret",
+  "agentName": "PDV 01"
+}
+
+→ Token: eyJhbGc... (validade: 10 anos)
+  Payload: { tenant: "demo", type: "agente-pdv", agentName: "PDV 01" }
 ```
 
-### 4. Verifique o status dos containers
-
-```powershell
-docker-compose ps
+```csharp
+// Agente usa token em todas as requisições
+client.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}")
+client.DefaultRequestHeaders.Add("X-Tenant", tenantId)
 ```
 
-Todos os serviços devem estar com status "Up".
+## 📚 Documentação Detalhada
 
-## 📱 Uso
+### Arquitetura
+- [ARCHITECTURE.md](./ARCHITECTURE.md) - Visão geral do sistema
+- [agente-pdv/ARCHITECTURE_DECISION.md](./agente-pdv/ARCHITECTURE_DECISION.md) - Decisões técnicas do agente
+- [solis-api/HYBRID_ARCHITECTURE.md](./solis-api/HYBRID_ARCHITECTURE.md) - Arquitetura híbrida da API
 
-Após iniciar os serviços, você pode acessar:
+### Multi-tenancy
+- [TENANT_MANAGEMENT.md](./TENANT_MANAGEMENT.md) - Gestão de tenants
+- [agente-pdv/CORS_MULTITENANT.md](./agente-pdv/CORS_MULTITENANT.md) - CORS multi-tenant
 
-| Serviço | URL | Descrição |
-|---------|-----|-----------|
-| **App Admin** | http://localhost:8081 | Painel administrativo |
-| **App PDV** | http://localhost:8080 | Aplicação de caixa |
-| **API Nuvem** | http://localhost:3000 | API Backend |
-| **Agente PDV** | http://localhost:5000 | Serviço de periféricos |
-| **Banco de Dados** | localhost:5432 | PostgreSQL |
+### Segurança
+- [SECURITY_HTTPS_LOCAL.md](./SECURITY_HTTPS_LOCAL.md) - Segurança localhost
+- [agente-pdv/AUTENTICACAO_JWT.md](./agente-pdv/AUTENTICACAO_JWT.md) - JWT no agente
 
-### Credenciais Padrão
+### Patterns
+- [agente-pdv/OUTBOX_PATTERN.md](./agente-pdv/OUTBOX_PATTERN.md) - Implementação do Outbox Pattern
+- [solis-api/PRISMA.md](./solis-api/PRISMA.md) - Uso do Prisma com multi-tenancy
 
-- **Email**: admin@solis.com
-- **Senha**: admin123
+### Instalação
+- [INSTALACAO_TECNICO.md](./INSTALACAO_TECNICO.md) - Guia completo para técnicos
+- [QUICKSTART.md](./QUICKSTART.md) - Start rápido para desenvolvimento
 
-**⚠️ IMPORTANTE**: Altere a senha padrão após o primeiro login!
+## 🛠️ Desenvolvimento Local
 
-## 🔧 Desenvolvimento
+### Pré-requisitos
+- Node.js 18+
+- .NET 8 SDK
+- PostgreSQL 14+
+- Docker (opcional)
 
-### Logs dos serviços
+### Setup Completo
 
-Ver logs de todos os serviços:
-```powershell
-docker-compose logs -f
-```
+```bash
+# 1. Clonar todos os repositórios
+git clone https://github.com/guilhermedores/solis-api.git
+git clone https://github.com/guilhermedores/solis-pwa.git
+git clone https://github.com/guilhermedores/solis-admin.git
+git clone https://github.com/guilhermedores/solis-agente.git
 
-Ver logs de um serviço específico:
-```powershell
-docker-compose logs -f solis-api
-docker-compose logs -f agente-pdv
-docker-compose logs -f solis-pwa
-docker-compose logs -f solis-admin
-```
+# 2. Subir banco de dados
+docker-compose up -d postgres
 
-### Reiniciar um serviço
+# 3. API
+cd solis-api
+npm install
+npm run prisma:generate
+npm run dev  # → http://localhost:3000
 
-```powershell
-docker-compose restart solis-api
-```
+# 4. PWA
+cd ../solis-pwa
+npm install
+npm run dev  # → http://localhost:5173
 
-### Parar todos os serviços
+# 5. Agente
+cd ../solis-agente
+dotnet restore
+dotnet run   # → http://localhost:5000
 
-```powershell
-docker-compose down
-```
-
-### Parar e remover volumes (dados serão perdidos!)
-
-```powershell
-docker-compose down -v
-```
-
-### Rebuild de um serviço específico
-
-```powershell
-docker-compose up -d --build solis-api
-```
-
-### Acessar o terminal de um container
-
-```powershell
-docker-compose exec solis-api sh
-docker-compose exec postgres psql -U solis_user -d solis_pdv
-```
-
-### Executar migrations manualmente
-
-```powershell
-docker-compose exec solis-api npm run migrate
-```
-
-## 🔐 Variáveis de Ambiente
-
-As principais variáveis de ambiente estão no arquivo `.env`:
-
-### Banco de Dados
-- `DB_NAME`: Nome do banco de dados
-- `DB_USER`: Usuário do banco
-- `DB_PASSWORD`: Senha do banco
-
-### API
-- `JWT_SECRET`: Chave secreta para JWT (mínimo 32 caracteres)
-- `API_KEY`: Chave para integrações externas
-- `NODE_ENV`: Ambiente (development/production)
-
-### Agente PDV
-- `SYNC_INTERVAL`: Intervalo de sincronização em segundos
-- `IMPRESSORA_TERMICA_PORT`: Porta da impressora térmica
-- `TEF_ENABLED`: Habilitar TEF (true/false)
-- `SAT_ENABLED`: Habilitar SAT/MFe (true/false)
-
-## 📊 Banco de Dados
-
-### Estrutura Principal
-
-O banco de dados inclui as seguintes tabelas principais:
-
-- **usuarios**: Usuários do sistema
-- **estabelecimentos**: Lojas/Filiais
-- **pdvs**: Caixas/Terminais
-- **produtos**: Cadastro de produtos
-- **categorias**: Categorias de produtos
-- **vendas**: Cupons fiscais
-- **venda_itens**: Itens das vendas
-- **formas_pagamento**: Formas de pagamento
-- **venda_pagamentos**: Pagamentos das vendas
-- **sync_log**: Log de sincronização
-- **perifericos_config**: Configuração de periféricos
-
-### Backup do Banco
-
-```powershell
-# Criar backup
-docker-compose exec postgres pg_dump -U solis_user solis_pdv > backup.sql
-
-# Restaurar backup
-docker-compose exec -T postgres psql -U solis_user solis_pdv < backup.sql
+# 6. Admin (opcional)
+cd ../solis-admin
+npm install
+npm run dev  # → http://localhost:5174
 ```
 
 ## 🧪 Testes
 
-### Testar conexão com a API
+```bash
+# API
+cd solis-api
+npm test
 
-```powershell
-curl http://localhost:3000/health
+# PWA
+cd solis-pwa
+npm test
+
+# Agente
+cd solis-agente
+dotnet test
 ```
 
-### Testar conexão com o Agente PDV
+## 📦 Deploy
 
-```powershell
-curl http://localhost:5000/health
+### Produção (Cloud)
+
+```bash
+# API
+docker build -t solis-api ./solis-api
+docker run -p 3000:3000 solis-api
+
+# Admin
+docker build -t solis-admin ./solis-admin
+docker run -p 80:80 solis-admin
 ```
 
-## 🐛 Troubleshooting
+### Loja (Local)
 
-### Problema: Container não inicia
+```bash
+# Agente (Windows Service)
+cd solis-agente
+dotnet publish -c Release
+.\scripts\instalar-servico.ps1
 
-```powershell
-# Ver logs detalhados
-docker-compose logs <nome-do-servico>
-
-# Rebuild do container
-docker-compose up -d --build <nome-do-servico>
+# PWA (Nginx)
+cd solis-pwa
+npm run build
+# Copiar dist/ para C:\inetpub\wwwroot\solis
 ```
-
-### Problema: Banco de dados não conecta
-
-```powershell
-# Verificar se o container está rodando
-docker-compose ps postgres
-
-# Testar conexão direta
-docker-compose exec postgres psql -U solis_user -d solis_pdv
-```
-
-### Problema: Porta já está em uso
-
-Edite o arquivo `docker-compose.yml` e altere a porta do serviço:
-
-```yaml
-ports:
-  - "3001:3000"  # Use 3001 em vez de 3000
-```
-
-## 📝 Roadmap
-
-- [ ] Implementar autenticação OAuth2
-- [ ] Adicionar suporte a múltiplas moedas
-- [ ] Integração com e-commerce
-- [ ] Dashboard de analytics
-- [ ] App mobile nativo (React Native)
-- [ ] Suporte a impressoras fiscais
-- [ ] Integração completa com TEF
 
 ## 🤝 Contribuindo
 
-1. Faça um fork do projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/MinhaFeature`)
-3. Commit suas mudanças (`git commit -m 'Adiciona MinhaFeature'`)
-4. Push para a branch (`git push origin feature/MinhaFeature`)
-5. Abra um Pull Request
+Veja [CONTRIBUTING.md](./CONTRIBUTING.md) para diretrizes de contribuição.
 
 ## 📄 Licença
 
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+MIT License - veja [LICENSE](./LICENSE) para detalhes.
 
-## 📧 Contato
+## 👥 Time
 
-Para dúvidas e suporte: suporte@solis.com
+- **Guilherme Batista** - [guilhermedores](https://github.com/guilhermedores)
+
+## 📞 Suporte
+
+- Issues: Abra uma issue no repositório específico
+- Email: suporte@solis.com.br
+- Documentação: https://docs.solis.com.br
 
 ---
 
-Desenvolvido com ❤️ pela equipe Solis
+**Nota:** Este repositório contém apenas a documentação global. Para código-fonte, acesse os repositórios individuais listados acima.
