@@ -9,7 +9,7 @@ Toda a infraestrutura Docker do Sistema Solis PDV foi criada e está pronta para
 ### 📁 Estrutura de Pastas (6 diretórios)
 ```
 Solis/
-├── 📁 solis-api/          → Backend Node.js
+├── 📁 solis-api/          → Backend .NET
 ├── 📁 agente-pdv/         → Serviço .NET para periféricos e mantenedor offline
 ├── 📁 solis-pwa/            → Aplicação de Caixa (PWA)
 ├── 📁 solis-admin/          → Painel Administrativo Web
@@ -41,7 +41,6 @@ Solis/
 - ✅ `nginx.conf` (x2) - Configurações Nginx
 
 #### Código Base (5 arquivos)
-- ✅ `package.json` - Dependências da API Node.js
 - ✅ `Solis.AgentePDV.csproj` - Projeto .NET
 - ✅ `01-init-database.sql` - Schema completo do banco
 
@@ -55,8 +54,8 @@ Solis/
 
 ### 2. 🚀 API Nuvem (Backend Node.js)
 - **Porta**: 3000
-- **Status**: ✅ Dockerfile multi-stage pronto
-- **Features**: Express, JWT, CORS, Validação
+- **Status**: ✅ Dockerfile .NET 9.0 pronto
+- **Features**: JWT, CORS, Validação
 - **Conexões**: PostgreSQL
 
 ### 3. ⚙️ Agente PDV (.NET)
@@ -81,7 +80,6 @@ Solis/
 
 ```
 ✅ usuarios              → Usuários do sistema
-✅ estabelecimentos      → Lojas/Filiais
 ✅ pdvs                  → Terminais de caixa
 ✅ categorias            → Categorias de produtos
 ✅ produtos              → Catálogo de produtos
@@ -203,11 +201,8 @@ Senha: admin123
 ## 📚 Documentação Disponível
 
 1. **README.md** → Documentação principal completa
-2. **QUICKSTART.md** → Início rápido em 3 passos
-3. **ARCHITECTURE.md** → Arquitetura técnica detalhada
-4. **CONTRIBUTING.md** → Como contribuir com o projeto
-5. **SUMMARY.md** → Resumo executivo
-6. **CHECKLIST.md** → Lista de verificação completa
+2. **ARCHITECTURE.md** → Arquitetura técnica detalhada
+3. **CONTRIBUTING.md** → Como contribuir com o projeto
 
 ## 💡 Dicas Importantes
 
@@ -240,9 +235,7 @@ docker-compose down -v
 ## 📞 Precisa de Ajuda?
 
 - 📖 Consulte **README.md** para documentação completa
-- 🚀 Veja **QUICKSTART.md** para início rápido
 - 🏗️ Leia **ARCHITECTURE.md** para entender a arquitetura
-- ✅ Use **CHECKLIST.md** para verificar cada passo
 
 ## 🎊 Parabéns!
 
